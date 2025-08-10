@@ -77,25 +77,48 @@ const accounts = computed(() =>
     labelsDisplay: acc.labels.map(l => l.text).join('; '),
     loginError: false,
     passwordError: false,
-    showPassword: false
   }))
 )
 
 const addAccount = () => {
+  accountStore.addAccount()
 }
 
 const updateLabels = (account: any) => {
+  const labels = account.labelsDisplay
+    .split(';')
+    .map((l: string) => l.trim())
+    .filter((l: string) => l.length > 0)
+    .map((text: string) => ({ text }))
+  
+  accountStore.updateAccount(account.id, { labels })
 }
 
 const updateAccountType = (account: any) => {
+  const update = {
+    accountType: account.accountType,
+    password: account.accountType === 'LDAP' ? null : account.password
+  }
+  accountStore.updateAccount(account.id, update)
 }
 
 const validateLogin = (account: any) => {
+  account.loginError = account.login.trim() === ''
+  if (!account.loginError) {
+    accountStore.updateAccount(account.id, { login: account.login })
+  }
 }
 
 const validatePassword = (account: any) => {
+  if (account.accountType === 'Локальная') {
+    account.passwordError = account.password.trim() === ''
+    if (!account.passwordError) {
+      accountStore.updateAccount(account.id, { password: account.password })
+    }
+  }
 }
 
 const deleteAccount = (id: string) => {
+  accountStore.deleteAccount(id)
 }
 </script>
