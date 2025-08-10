@@ -50,10 +50,21 @@
               v-model="account.password"
               @blur="validatePassword(account)"
               :class="{ 'invalid': account.passwordError }"
-              :type="'password'"
+              :type="accountStore.getAccount(account.id)?.showPassword ? 'text' : 'password'"
               required
               maxlength="100"
             />
+            <button 
+              @click="togglePasswordVisibility(account.id)"
+              class="toggle-password"
+              type="button"
+            >
+              <img 
+                :src="accountStore.getAccount(account.id)?.showPassword ? eyeOpen : eyeClose" 
+                alt="Toggle password visibility"
+                class="eye-icon"
+              />
+            </button>
           </div>
         </div>
         
@@ -69,6 +80,9 @@
 import { computed } from 'vue'
 import { useAccountStore } from '../stores/AccountStore'
 
+import eyeOpen from '../assets/open.png'
+import eyeClose from '../assets/close.png'
+
 const accountStore = useAccountStore()
 
 const accounts = computed(() => 
@@ -77,8 +91,18 @@ const accounts = computed(() =>
     labelsDisplay: acc.labels.map(l => l.text).join('; '),
     loginError: false,
     passwordError: false,
+    showPassword: false
   }))
 )
+
+const togglePasswordVisibility = (id: string) => {
+  const account = accountStore.accounts.find(acc => acc.id === id)
+  if (account) {
+    accountStore.updateAccount(id, {
+      showPassword: !account.showPassword
+    })
+  }
+}
 
 const addAccount = () => {
   accountStore.addAccount()
@@ -122,3 +146,148 @@ const deleteAccount = (id: string) => {
   accountStore.deleteAccount(id)
 }
 </script>
+
+<style scoped>
+.account-management {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.top-text {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.add-btn {
+  background-color: #fff;
+  color: #4e4e4e;
+  font-size: 2rem;
+  padding: 4px 12px;
+  border: 2px solid #4e4e4e;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.hint-text {
+  background-color: rgb(223, 246, 253);
+  margin-bottom: 20px;
+  padding: 2px 4px;
+  border-radius: 5px;
+}
+
+.accounts-table {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.table-header, .table-row {
+  display: flex;
+  width: 100%;
+}
+
+.cell {
+  padding: 12px;
+  border-right: 1px solid #ddd;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.wide-cell {
+  flex: 2;
+  padding: 12px 24px;
+}
+
+.actions {
+  flex: 0 0 100px;
+  justify-content: center;
+}
+
+.table-header .cell {
+  background-color: #f5f5f5;
+  font-weight: bold;
+}
+
+.table-row {
+  border-top: 1px solid #ddd;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+input, select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.invalid {
+  border-color: #ff4444;
+}
+
+.delete-btn {
+  background-color: #ff4444;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.password-field {
+  position: relative;
+  display: flex;
+}
+
+.password-field input {
+  padding-right: 30px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eye-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.toggle-password:hover {
+  color: #555;
+}
+
+@media (max-width: 768px) {
+  .accounts-table {
+    overflow-x: auto;
+  }
+  
+  .table-header, .table-row {
+    min-width: 700px;
+  }
+}
+</style>

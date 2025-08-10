@@ -11,6 +11,7 @@ interface Account {
     accountType: 'LDAP' | 'Локальная'
     login: string
     password: string | null
+    showPassword?: boolean
 }
 
 export const useAccountStore = defineStore('accounts', () => {
